@@ -1,0 +1,67 @@
+PWD c:\Users\krish\Desktop\Econometrics_Project\Documentation
+INPUT C:\Users\krish\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
+INPUT c:\Users\krish\Desktop\Econometrics_Project\Documentation\documentation.tex
+OUTPUT documentation.log
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Program Files\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Program Files\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Program Files\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Program Files\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\base\inputenc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT .\documentation.aux
+INPUT documentation.aux
+INPUT documentation.aux
+OUTPUT documentation.aux
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmr17.tfm
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmmi12.tfm
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmsy10.tfm
+OUTPUT documentation.pdf
+INPUT C:\Users\krish\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmr17.tfm
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
+INPUT .\documentation.toc
+INPUT documentation.toc
+INPUT documentation.toc
+INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmbx12.tfm
+OUTPUT documentation.toc
+INPUT documentation.aux
+INPUT C:\Program Files\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
+INPUT C:\Program Files\MiKTeX\fonts\type1\public\amsfonts\cm\cmbx12.pfb
+INPUT C:\Program Files\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
+INPUT C:\Program Files\MiKTeX\fonts\type1\public\amsfonts\cm\cmr12.pfb
+INPUT C:\Program Files\MiKTeX\fonts\type1\public\amsfonts\cm\cmr17.pfb
+INPUT C:\Program Files\MiKTeX\fonts\type1\public\amsfonts\cm\cmr17.pfb
