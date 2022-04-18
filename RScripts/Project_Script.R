@@ -29,6 +29,9 @@ library(kableExtra);
 library(tidyverse);
 library(cowplot);
 
+#this is for modelsummary
+webshot::install_phantomjs()
+
 #reading the dataframe values into "main_df"
 main_df <- read_csv("../Data/main_final.csv");
 
@@ -77,7 +80,22 @@ kharif_Measles_yield <- ggplot(data = kharif_mc,
 p <- plot_grid(all_seasons_Measles_yield, rabi_Measles_yield, 
                kharif_Measles_yield)
 
+#save the plot in the working directory
 save_plot("measles_vs_yield.png", p, ncol = 2, base_asp = 1.2)
 
+#formula for linear model
 mc_form <- Measles_Pct ~ index
+
+#linear model creation
+all_seasons_lm <- lm(mc_form, mc_dataset)
+rabi_lm <- lm(mc_form, rabi_mc)
+kharif_lm <- lm(mc_form, kharif_mc)
+
+
+modelsummary(list("All Seasons"  = all_seasons_lm, 
+                  "Rabi" = rabi_lm,
+                  "Kharif" = kharif_lm), 
+             
+             output = "measles_vs_index_lm_summary.png")
+
 
