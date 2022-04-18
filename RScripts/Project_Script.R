@@ -49,21 +49,25 @@ mc_dataset <- na.omit(mc_dataset)
 #visualisation of the data
 
 #all seasons
-all_seasons_Measles_yield <- ggplot(data = mc_dataset, mapping = (aes(x = index, 
+all_seasons_mc <- mc_dataset
+rabi_mc <- mc_dataset[mc_dataset$season == "Rabi", ]
+kharif_mc <- mc_dataset[mc_dataset$season == "Kharif", ]
+
+all_seasons_Measles_yield <- ggplot(data = all_seasons_mc, mapping = (aes(x = index, 
                     y = Measles_Pct))) +
   geom_point(size = 0.5) + labs(x = "Yield Index", 
                       y = "Measles %deaths",
                       title = "Percentage of Measles-induced deaths vs Yield
                       Index (All Seasons)")
 
-rabi_Measles_yield <- ggplot(data = mc_dataset[mc_dataset$season == "Rabi", ], 
+rabi_Measles_yield <- ggplot(data = rabi_mc, 
                       mapping = (aes(x = index, y = Measles_Pct))) +
   geom_point(size = 0.5) + labs(x = "Yield Index",
                                           y = "Measles %deaths",
                       title = "Percentage of Measles-induced deaths vs
                       Yield Index (Rabi)")
 
-kharif_Measles_yield <- ggplot(data = mc_dataset[mc_dataset$season == "Kharif",], 
+kharif_Measles_yield <- ggplot(data = kharif_mc, 
                         mapping = (aes(x = index, y = Measles_Pct))) +
   geom_point(size = 0.5) + labs(x = "Yield Index", 
                                             y = "Measles %deaths",
