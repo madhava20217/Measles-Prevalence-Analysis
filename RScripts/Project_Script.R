@@ -12,6 +12,7 @@
 # install.packages("gt");
 # install.packages("tidyverse")
 # install.packages("cowplot")
+# install.packages("xtable")
 
 #clear console and variables
 rm(list = ls());
@@ -28,6 +29,7 @@ library(modelsummary);
 library(kableExtra);
 library(tidyverse);
 library(cowplot);
+library(xtable);
 
 #this is for modelsummary
 webshot::install_phantomjs()
@@ -40,6 +42,47 @@ names(main_df)[names(main_df) == "v36"] <- "Measles_Pct"
 
 #getting numeric data only, from main_df
 num_df <- main_df[, unlist(lapply(main_df, is.numeric))]
+
+# ********************GETTING MODEL PARAMETERS********************
+
+#determining which all features to be used among the numerical information
+cov_mat_num <- cov(num_df, use = "complete.obs")
+print(xtable(as.data.frame(cov_mat_num)), type = "html")
+
+#Our variable of interest is infant deaths due to measles (percentage of total
+#deaths)
+# It should not scale with rowID (since it's just row_id), nor with country, 
+# could scale with state (as a categorical variable), could scale with
+# districtLGDCode (similar to state), could with year, Area under production,
+# yield, state (as a categorical variable) etc...
+
+# seems like the viable variables are: area under production (areahectares),
+# yieldtonneshectare, v1 (pregnant women registered for ante natal care), 
+# pregnant women registered for anti natal care within first trimester (v2), 
+# received 3 ANC checks: v3, v4 (tetanus toxoid), 100 iron and folic acid (v5),
+#  moderately anaemic (v6), anaemia (v7), home deliveries (v8) ? , v9 ? , v10 ?,
+# Note; v9 v10 v11 are categories of v8, which is also a category of v14 with v13
+# v12 (pct discharged within 48 hours of delivery), v18(postpartum 48hr) ~ to v8
+# safe deliveries v16, % home deliveries (probably not useful), 
+
+# measles deaths in infants should be related to healthcare facilities.
+# therefore, it must have some correlation with v1 to v20 (birth and pregnancy
+# variables), birth weight issues (v20 to v30), sex ratio as well at birth (v31)
+# and also, with fully immunised children (as it relates to healthcare facility 
+# and attitude of people to it). It could also scale with sterlisation, which
+# is done in order to prevent unwanted pregnancy, which may relate to the 
+# people's potential to handle the children.
+
+# Measles is a viral respiratory disease. It spreads via air, saliva, touching
+# a contaminated surface (hygiene), skin to skin contact (hygiene again), 
+# mother to child via pregnancy, labour or nursing.
+
+# Polio is transmitted through contaminated water and food, and necessitates
+# hygiene, similar to Measles.
+# Therefore, Measles could be related to Polio deaths.
+# Same with diarrhoea
+
+#
 
 
 
@@ -59,23 +102,23 @@ kharif_mc <- mc_dataset[mc_dataset$season == "Kharif", ]
 all_seasons_Measles_yield <- ggplot(data = all_seasons_mc, mapping = (aes(x = index, 
                     y = Measles_Pct))) +
   geom_point(size = 0.5) + labs(x = "Yield Index", 
-                      y = "Measles %deaths",
-                      title = "Percentage of Measles-induced deaths vs Yield
-                      Index (All Seasons)")
+                                y = "Children with measles",
+                                title = "Percentage of measles infections vs
+                      Yield Index (All Seasons)")
 
 rabi_Measles_yield <- ggplot(data = rabi_mc, 
                       mapping = (aes(x = index, y = Measles_Pct))) +
   geom_point(size = 0.5) + labs(x = "Yield Index",
-                                          y = "Measles %deaths",
-                      title = "Percentage of Measles-induced deaths vs
+                                          y = "Children with measles",
+                      title = "Percentage of measles infections vs
                       Yield Index (Rabi)")
 
 kharif_Measles_yield <- ggplot(data = kharif_mc, 
                         mapping = (aes(x = index, y = Measles_Pct))) +
   geom_point(size = 0.5) + labs(x = "Yield Index", 
-                                            y = "Measles %deaths",
-                        title = "Percentage of Measles-induced deaths vs
-                        Yield Index (Kharif)")
+                                y = "Children with measles",
+                                title = "Percentage of measles infections vs
+                      Yield Index (Kharif)")
 
 p <- plot_grid(all_seasons_Measles_yield, rabi_Measles_yield, 
                kharif_Measles_yield)
