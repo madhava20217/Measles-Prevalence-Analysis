@@ -37,8 +37,8 @@ webshot::install_phantomjs()
 #reading the dataframe values into "main_df"
 main_df <- read_csv("../Data/main_final.csv");
 
-#renaming variable of interest: v36 to Measles_Pct in the main_df
-names(main_df)[names(main_df) == "v36"] <- "Measles_Pct"
+#renaming variable of interest: v36 to Measles in the main_df
+names(main_df)[names(main_df) == "v36"] <- "Measles"
 
 #getting numeric data only, from main_df
 num_df <- main_df[, unlist(lapply(main_df, is.numeric))]
@@ -80,16 +80,31 @@ print(xtable(as.data.frame(cov_mat_num)), type = "html")
 # Polio is transmitted through contaminated water and food, and necessitates
 # hygiene, similar to Measles.
 # Therefore, Measles could be related to Polio deaths.
-# Same with diarrhoea
+# Same with diarrhoea and malaria
+covs <- as.data.frame(cov(num_df, use = "complete.obs"))
+print(covs$Measles)
 
-#
+corrs <- as.data.frame(cor(num_df, use = "complete.obs"))
+write_csv(corrs, "correlation_matrix.csv")
+
+#looking at the correlation coefficient matrix (corrs), we can notice a strong
+#correlation between v46 and v36, because the former is the death percentage due
+#to measles, and the latter is the number of measles infected infants
+
+#this is followed by v9, which is number of home deliveries attended by doctor
+# or nurse
 
 
+
+# ********************MODELING PARAMETERS********************
+measles_model <- Measles ~ gdp + beds + tap + index
+
+modelsummary(lm(measles_model, main_df, na.action = na.omit))
 
 # ********************MONTE CARLO SIMULATION********************
 
-#Dataset for running Monte Carlo simulation (Measles_Pct and index)
-mc_dataset <- main_df[, c("index", "Measles_Pct", "season")]
+#Dataset for running Monte Carlo simulation (Measles and index)
+mc_dataset <- main_df[, c("index", "Measles", "season")]
 mc_dataset <- na.omit(mc_dataset)
 
 #visualisation of the data
@@ -100,21 +115,21 @@ rabi_mc <- mc_dataset[mc_dataset$season == "Rabi", ]
 kharif_mc <- mc_dataset[mc_dataset$season == "Kharif", ]
 
 all_seasons_Measles_yield <- ggplot(data = all_seasons_mc, mapping = (aes(x = index, 
-                    y = Measles_Pct))) +
+                    y = Measles))) +
   geom_point(size = 0.5) + labs(x = "Yield Index", 
                                 y = "Children with measles",
                                 title = "Percentage of measles infections vs
                       Yield Index (All Seasons)")
 
 rabi_Measles_yield <- ggplot(data = rabi_mc, 
-                      mapping = (aes(x = index, y = Measles_Pct))) +
+                      mapping = (aes(x = index, y = Measles))) +
   geom_point(size = 0.5) + labs(x = "Yield Index",
                                           y = "Children with measles",
                       title = "Percentage of measles infections vs
                       Yield Index (Rabi)")
 
 kharif_Measles_yield <- ggplot(data = kharif_mc, 
-                        mapping = (aes(x = index, y = Measles_Pct))) +
+                        mapping = (aes(x = index, y = Measles))) +
   geom_point(size = 0.5) + labs(x = "Yield Index", 
                                 y = "Children with measles",
                                 title = "Percentage of measles infections vs
@@ -127,7 +142,7 @@ p <- plot_grid(all_seasons_Measles_yield, rabi_Measles_yield,
 save_plot("measles_vs_yield.png", p, ncol = 2, base_asp = 1.2)
 
 #formula for linear model
-mc_form <- Measles_Pct ~ index
+mc_form <- Measles ~ index
 
 #linear model creation
 all_seasons_lm <- lm(mc_form, mc_dataset)
