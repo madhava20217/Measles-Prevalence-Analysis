@@ -14,7 +14,8 @@
 # install.packages("cowplot")
 # install.packages("xtable")
 # install.packages("corrplot")
-
+# install.packages("lessR")
+# install.packages("data.table")
 #clear console and variables
 rm(list = ls());
 cat("\014");
@@ -32,6 +33,8 @@ library(tidyverse);
 library(cowplot);
 library(xtable);
 library(corrplot);
+library(lessR);
+library(data.table);
 
 
 #this is for modelsummary
@@ -210,7 +213,89 @@ modelsummary(list("All Seasons"  = all_seasons_lm,
              output = "measles_vs_index_lm_summary.png")
 
 #For Rabi
-cf <- coefficients(rabi_lm)
-beta_0 <- cf["(Intercept)"]
-beta_1 <- cf[1]
-print(beta_0)
+#intercept coefficient
+Rabibeta_0 <- summary(rabi_lm)$coefficients[1,1]
+
+#slope coefficient
+Rabibeta_1 <- summary(rabi_lm)$coefficients[2,1]
+
+#Discarding 20% of data and considering the remaining dataset
+reduced_rabi_data <- rabi_mc[.(random(0.8)), .(index:season)]
+
+#Sample size : Number of rows in remaining dataset
+rabi_samplesize <- nrow(reduced_rabi_data)
+
+#500 is the number of iterations
+#Vector to store computed slope coefficients
+rabi_slope <- rep(0,500)
+
+#Vector to store computed intercept coefficients
+rabi_intercept <- rep(0,500)
+
+#Iterations = 500
+for (i in 1:500) {
+  u_i <- rnorm(rabi_samplesize, mean = 0, sd = 1)
+  x_i <- rnorm(rabi_samplesize, mean = 2, sd = 16)
+  y_i <- Rabibeta_0 + Rabibeta_1*x_i + u_i
+
+  data_i <- data.table(Y = y_i, X = x_i)
+
+  #Regressing
+  ols_data <- lm(y_i ~ x_i, data_i)
+
+  #Adding the regression coefficients to vectors
+  rabi_slope[i] <- summary(ols_data)$coefficients[2,1]
+  rabi_intercept[i] <- summary(ols_data)$coefficients[1,1]
+}
+print(Rabibeta_0)
+print(Rabibeta_1)
+
+#Calculating the estimated value
+mean(rabi_intercept)
+mean(rabi_slope)
+
+
+#For Kharif
+#intercept coefficient
+Kharifbeta_0 <- summary(kharif_lm)$coefficients[1,1]
+
+#slope coefficient
+Kharifbeta_1 <- summary(kharif_lm)$coefficients[2,1]
+
+#Discarding 20% of data and considering the remaining dataset
+reduced_kharif_data <- kharif_mc[.(random(0.8)), .(index:season)]
+
+#Sample size : Number of rows in remaining dataset
+kharif_samplesize <- nrow(reduced_kharif_data)
+
+#500 is the number of iterations
+#Vector to store computed slope coefficients
+kharif_slope <- rep(0,500)
+
+#Vector to store computed intercept coefficients
+kharif_intercept <- rep(0,500)
+
+#Iterations = 500
+for (i in 1:500) {
+  u_i <- rnorm(kharif_samplesize, mean = 0, sd = 1)
+  x_i <- rnorm(kharif_samplesize, mean = 2, sd = 16)
+  y_i <- Kharifbeta_0 + Kharifbeta_1*x_i + u_i
+
+  data_i <- data.table(Y = y_i, X = x_i)
+
+  #Regressing
+  ols_data <- lm(y_i ~ x_i, data_i)
+
+  #Adding the regression coefficients to vectors
+  kharif_intercept[i] <- summary(ols_data)$coefficients[1,1]
+  kharif_slope[i] <- summary(ols_data)$coefficients[2,1]
+}
+print(Kharifbeta_0)
+print(Kharifbeta_1)
+
+#Calculating the estimated value
+mean(kharif_intercept)
+mean(kharif_slope)
+
+
+# ***********************************************************************
