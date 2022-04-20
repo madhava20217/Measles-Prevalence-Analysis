@@ -38,7 +38,7 @@ library(corrplot);
 webshot::install_phantomjs()
 
 #reading the dataframe values into "main_df"
-main_df <- read_csv("../Data/main_final.csv");
+main_df <- read_csv("Data/main_final.csv");
 
 #renaming variable of interest: v36 to Measles in the main_df
 names(main_df)[names(main_df) == "v36"] <- "Measles"
@@ -54,30 +54,30 @@ print(xtable(as.data.frame(cov_mat_num)), type = "html")
 
 #Our variable of interest is infant deaths due to measles (percentage of total
 #deaths)
-# It should not scale with rowID (since it's just row_id), nor with country, 
+# It should not scale with rowID (since it's just row_id), nor with country,
 # could scale with state (as a categorical variable), could scale with
 # districtLGDCode (similar to state), could with year, Area under production,
 # yield, state (as a categorical variable) etc...
 
 # seems like the viable variables are: area under production (areahectares),
-# yieldtonneshectare, v1 (pregnant women registered for ante natal care), 
-# pregnant women registered for anti natal care within first trimester (v2), 
+# yieldtonneshectare, v1 (pregnant women registered for ante natal care),
+# pregnant women registered for anti natal care within first trimester (v2),
 # received 3 ANC checks: v3, v4 (tetanus toxoid), 100 iron and folic acid (v5),
 #  moderately anaemic (v6), anaemia (v7), home deliveries (v8) ? , v9 ? , v10 ?,
 # Note; v9 v10 v11 are categories of v8, which is also a category of v14 with v13
 # v12 (pct discharged within 48 hours of delivery), v18(postpartum 48hr) ~ to v8
-# safe deliveries v16, % home deliveries (probably not useful), 
+# safe deliveries v16, % home deliveries (probably not useful),
 
 # measles deaths in infants should be related to healthcare facilities.
 # therefore, it must have some correlation with v1 to v20 (birth and pregnancy
 # variables), birth weight issues (v20 to v30), sex ratio as well at birth (v31)
-# and also, with fully immunised children (as it relates to healthcare facility 
+# and also, with fully immunised children (as it relates to healthcare facility
 # and attitude of people to it). It could also scale with sterlisation, which
-# is done in order to prevent unwanted pregnancy, which may relate to the 
+# is done in order to prevent unwanted pregnancy, which may relate to the
 # people's potential to handle the children.
 
 # Measles is a viral respiratory disease. It spreads via air, saliva, touching
-# a contaminated surface (hygiene), skin to skin contact (hygiene again), 
+# a contaminated surface (hygiene), skin to skin contact (hygiene again),
 # mother to child via pregnancy, labour or nursing.
 
 # Polio is transmitted through contaminated water and food, and necessitates
@@ -102,15 +102,15 @@ abs_corrs <- abs(corrs)
 
 # *** correlation plot ***
 #dropping params (either redundant or other)
-valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1", 
-                "v4", "v5", "v6", "v15", "v16", "v17", "v20", "v21", "v23", 
-                "v27", "v28", "v29", "v30", "v34", "v35", "v37", "v38", "v39", 
+valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1",
+                "v4", "v5", "v6", "v15", "v16", "v17", "v20", "v21", "v23",
+                "v27", "v28", "v29", "v30", "v34", "v35", "v37", "v38", "v39",
                 "index", "gdp", "beds", "tap", "Measles", "season"
           )
 
 test_df <- main_df[valid_cols]
 
-correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"), 
+correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"),
                              method = "shade")
 corrplot(cor(num_df, use = "complete.obs"), method = "shade")
 
@@ -119,8 +119,8 @@ save_plot("correlation_plot.png", correlation_plot)
 # ********************MODELING PARAMETERS********************
 
 #original formula
-measles_form1 <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 + v17 + v20 + v21 + 
-  v23 + v27 + v29 + v34 + v35 + v37 + v38 + v39 + 
+measles_form1 <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 + v17 + v20 + v21 +
+  v23 + v27 + v29 + v34 + v35 + v37 + v38 + v39 +
   index + gdp + beds + tap
 
 
@@ -128,10 +128,10 @@ measles_form <- Measles ~ atan(1/v1) + v4 + v5 + v6 + v15 + v16 +
                           v17 + v20 + v21 +  v23 + v28 + v30 + v34 + v35 +
                           v37 + v38 + v39 + index + gdp + beds + tap
 
-measles_model_rabi <- lm(measles_form, test_df[test_df$season == "Rabi", ], 
+measles_model_rabi <- lm(measles_form, test_df[test_df$season == "Rabi", ],
                          na.action = na.omit)
 
-measles_model_kharif <- lm(measles_form, test_df[test_df$season == "Kharif", ], 
+measles_model_kharif <- lm(measles_form, test_df[test_df$season == "Kharif", ],
                          na.action = na.omit)
 
 summary(measles_model_rabi)
@@ -167,28 +167,28 @@ all_seasons_mc <- mc_dataset
 rabi_mc <- mc_dataset[mc_dataset$season == "Rabi", ]
 kharif_mc <- mc_dataset[mc_dataset$season == "Kharif", ]
 
-all_seasons_Measles_yield <- ggplot(data = all_seasons_mc, mapping = (aes(x = index, 
+all_seasons_Measles_yield <- ggplot(data = all_seasons_mc, mapping = (aes(x = index,
                     y = Measles))) +
-  geom_point(size = 0.5) + labs(x = "Yield Index", 
+  geom_point(size = 0.5) + labs(x = "Yield Index",
                                 y = "Children with measles",
                                 title = "Percentage of measles infections vs
                       Yield Index (All Seasons)")
 
-rabi_Measles_yield <- ggplot(data = rabi_mc, 
+rabi_Measles_yield <- ggplot(data = rabi_mc,
                       mapping = (aes(x = index, y = Measles))) +
   geom_point(size = 0.5) + labs(x = "Yield Index",
                                           y = "Children with measles",
                       title = "Percentage of measles infections vs
                       Yield Index (Rabi)")
 
-kharif_Measles_yield <- ggplot(data = kharif_mc, 
+kharif_Measles_yield <- ggplot(data = kharif_mc,
                         mapping = (aes(x = index, y = Measles))) +
-  geom_point(size = 0.5) + labs(x = "Yield Index", 
+  geom_point(size = 0.5) + labs(x = "Yield Index",
                                 y = "Children with measles",
                                 title = "Percentage of measles infections vs
                       Yield Index (Kharif)")
 
-p <- plot_grid(all_seasons_Measles_yield, rabi_Measles_yield, 
+p <- plot_grid(all_seasons_Measles_yield, rabi_Measles_yield,
                kharif_Measles_yield)
 
 #save the plot in the working directory
@@ -203,10 +203,14 @@ rabi_lm <- lm(mc_form, rabi_mc)
 kharif_lm <- lm(mc_form, kharif_mc)
 
 
-modelsummary(list("All Seasons"  = all_seasons_lm, 
+modelsummary(list("All Seasons"  = all_seasons_lm,
                   "Rabi" = rabi_lm,
-                  "Kharif" = kharif_lm), 
-             
+                  "Kharif" = kharif_lm),
+
              output = "measles_vs_index_lm_summary.png")
 
-
+#For Rabi
+cf <- coefficients(rabi_lm)
+beta_0 <- cf["(Intercept)"]
+beta_1 <- cf[1]
+print(beta_0)
