@@ -110,12 +110,11 @@ valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1",
 
 test_df <- main_df[valid_cols]
 
-correlation_plot <- corrplot(cor(test_df, use = "complete.obs"), 
+correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"), 
                              method = "shade")
 corrplot(cor(num_df, use = "complete.obs"), method = "shade")
 
 save_plot("correlation_plot.png", correlation_plot)
-
 
 # ********************MODELING PARAMETERS********************
 
@@ -125,13 +124,35 @@ measles_form1 <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 + v17 + v20 + v21 +
   index + gdp + beds + tap
 
 
-measles_form <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 +
+measles_form <- Measles ~ atan(1/v1) + v4 + v5 + v6 + v15 + v16 +
                           v17 + v20 + v21 +  v23 + v28 + v30 + v34 + v35 +
                           v37 + v38 + v39 + index + gdp + beds + tap
 
-measles_model <- lm(measles_form, test_df, na.action = na.omit)
+measles_model_rabi <- lm(measles_form, test_df[test_df$season == "Rabi", ], 
+                         na.action = na.omit)
 
-summary(measles_model)
+measles_model_kharif <- lm(measles_form, test_df[test_df$season == "Kharif", ], 
+                         na.action = na.omit)
+
+summary(measles_model_rabi)
+summary(measles_model_kharif)
+
+
+# ***** Alternate formula *****
+alt <- Measles ~ v13 + v29 + v34 + v27 + beds + index + gdp + tap
+summary(lm(alt, main_df, na.action = na.omit))
+
+# ********************IMPROVING MODEL PARAMETERS********************
+for (param in names(num_df[, 9:length(names(num_df))])){
+  if (param != "Measles"){
+    scatter.smooth(num_df$Measles, num_df[[param]], xlab = "Measles", ylab = param)
+    cat("Press [enter] to continue")
+    line <- readline()
+    dev.off()
+    if(line == "stop") break
+  }
+}
+
 
 # ********************MONTE CARLO SIMULATION********************
 
