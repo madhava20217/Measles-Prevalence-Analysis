@@ -105,13 +105,14 @@ abs_corrs <- abs(corrs)
 valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1", 
                 "v4", "v5", "v6", "v15", "v16", "v17", "v20", "v21", "v23", 
                 "v27", "v28", "v29", "v30", "v34", "v35", "v37", "v38", "v39", 
-                "index", "gdp", "beds", "tap", "Measles"
+                "index", "gdp", "beds", "tap", "Measles", "season"
           )
 
 test_df <- main_df[valid_cols]
 
 correlation_plot <- corrplot(cor(test_df, use = "complete.obs"), 
                              method = "shade")
+corrplot(cor(num_df, use = "complete.obs"), method = "shade")
 
 save_plot("correlation_plot.png", correlation_plot)
 
@@ -124,7 +125,7 @@ measles_form1 <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 + v17 + v20 + v21 +
   index + gdp + beds + tap
 
 
-measles_form <- Measles ~ yieldtonneshectare + v1 + v4 + v5 + v6 + v15 + v16 +
+measles_form <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 +
                           v17 + v20 + v21 +  v23 + v28 + v30 + v34 + v35 +
                           v37 + v38 + v39 + index + gdp + beds + tap
 
