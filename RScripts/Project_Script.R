@@ -13,6 +13,7 @@
 # install.packages("tidyverse")
 # install.packages("cowplot")
 # install.packages("xtable")
+# install.packages("corrplot")
 
 #clear console and variables
 rm(list = ls());
@@ -30,6 +31,8 @@ library(kableExtra);
 library(tidyverse);
 library(cowplot);
 library(xtable);
+library(corrplot);
+
 
 #this is for modelsummary
 webshot::install_phantomjs()
@@ -94,12 +97,33 @@ write_csv(corrs, "correlation_matrix.csv")
 #this is followed by v9, which is number of home deliveries attended by doctor
 # or nurse
 
+abs_corrs <- abs(corrs)
+
+
+# *** correlation plot ***
+#dropping params (either redundant or other)
+valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1", "v4",
+          "v5", "v6", "v15", "v16", "v17", "v20", "v21", "v23", "v27", "v29", 
+          "v34", "v35", "v37", "v38", "v39", "index", "gdp", "beds", "tap",
+          "Measles"
+          )
+
+test_df <- main_df[valid_cols]
+
+correlation_plot <- corrplot(cor(test_df, use = "complete.obs"), 
+                             method = "shade")
+
+save_plot("correlation_plot.png", correlation_plot)
 
 
 # ********************MODELING PARAMETERS********************
-measles_model <- Measles ~ gdp + beds + tap + index
+measles_form <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 + v17 + v20 + v21 + 
+                           v23 + v27 + v29 + v34 + v35 + v37 + v38 + v39 + 
+                           index + gdp + beds + tap
 
-modelsummary(lm(measles_model, main_df, na.action = na.omit))
+measles_model <- lm(measles_form, test_df, na.action = na.omit)
+
+summary(measles_model)
 
 # ********************MONTE CARLO SIMULATION********************
 
