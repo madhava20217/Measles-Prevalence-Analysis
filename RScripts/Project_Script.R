@@ -41,7 +41,7 @@ library(data.table);
 webshot::install_phantomjs()
 
 #reading the dataframe values into "main_df"
-main_df <- read_csv("Data/main_final.csv");
+main_df <- read_csv("../Data/main_final.csv");
 
 #renaming variable of interest: v36 to Measles in the main_df
 names(main_df)[names(main_df) == "v36"] <- "Measles"
@@ -106,7 +106,7 @@ abs_corrs <- abs(corrs)
 # *** correlation plot ***
 #dropping params (either redundant or other)
 valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1",
-                "v4", "v5", "v6", "v15", "v16", "v17", "v20", "v21", "v23",
+                "v4", "v5", "v6", "v12", "v15", "v16", "v17", "v20", "v21", "v23",
                 "v27", "v28", "v29", "v30", "v34", "v35", "v37", "v38", "v39",
                 "index", "gdp", "beds", "tap", "Measles", "season"
           )
@@ -117,19 +117,16 @@ correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"),
                              method = "shade")
 corrplot(cor(num_df, use = "complete.obs"), method = "shade")
 
-save_plot("correlation_plot.png", correlation_plot)
+# save_plot("correlation_plot.png", correlation_plot)
 
 # ********************MODELING PARAMETERS********************
 
-#original formula
-measles_form1 <- Measles ~ v1 + v4 + v5 + v6 + v15 + v16 + v17 + v20 + v21 +
-  v23 + v27 + v29 + v34 + v35 + v37 + v38 + v39 +
-  index + gdp + beds + tap
+#original formula: 0.7752,  0.7796
+#log v4 and v1 : 0.7751, 0.7797
 
-
-measles_form <- Measles ~ atan(1/v1) + v4 + v5 + v6 + v15 + v16 +
-                          v17 + v20 + v21 +  v23 + v28 + v30 + v34 + v35 +
-                          v37 + v38 + v39 + index + gdp + beds + tap
+measles_form <- Measles ~ v1 + v4 + v5 + v6 + v12 + v15 + v16 +
+                          v17 + v20 + v21 +  v23 + v28 + v30 + v34 + v35 + v37 +
+                          v38 + v39 + index + gdp + beds + tap
 
 measles_model_rabi <- lm(measles_form, test_df[test_df$season == "Rabi", ],
                          na.action = na.omit)
@@ -142,10 +139,21 @@ summary(measles_model_kharif)
 
 
 # ***** Alternate formula *****
-alt <- Measles ~ v13 + v29 + v34 + v27 + beds + index + gdp + tap
-summary(lm(alt, main_df, na.action = na.omit))
+#alt <- Measles ~ v13 + v29 + v34 + v27 + beds + index + gdp + tap
+#summary(lm(alt, main_df, na.action = na.omit))
 
 # ********************IMPROVING MODEL PARAMETERS********************
+for (param in names(num_df[, 9:length(names(num_df))])){
+  hist(num_df[[param]], xlab = param, bins = 20)
+  cat("Press [enter] to continue")
+  line <- readline()
+  dev.off()
+  if(line == "stop") break
+}
+
+
+
+#scatterplots vs Measles
 for (param in names(num_df[, 9:length(names(num_df))])){
   if (param != "Measles"){
     scatter.smooth(num_df$Measles, num_df[[param]], xlab = "Measles", ylab = param)
@@ -193,6 +201,8 @@ kharif_Measles_yield <- ggplot(data = kharif_mc,
 
 p <- plot_grid(all_seasons_Measles_yield, rabi_Measles_yield,
                kharif_Measles_yield)
+
+plot(p)
 
 #save the plot in the working directory
 save_plot("measles_vs_yield.png", p, ncol = 2, base_asp = 1.2)
