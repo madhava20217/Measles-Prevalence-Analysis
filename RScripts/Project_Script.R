@@ -112,17 +112,13 @@ abs_corrs <- abs(corrs)
 
 # *** correlation plot ***
 #dropping params (either redundant or other)
-valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1",
-                "v4", "v5", "v6", "v8", "v15", "v16", "v17", "v20", "v21", "v23",
-                "v26",
-                "v27", "v28", "v29", "v30", "v34", "v35", "v37", "v38", "v39",
-                "index", "gdp", "beds", "tap", "Measles", "season"
-          )
+valid_cols <- c("Measles" , "v5", "v20", "v23", "v26", "v30", "v37", "v38", 
+                "index", "gdp", "beds", "tap", "season")
 
 test_df <- main_df[valid_cols]
 
-rabi_df <- test_df[test_df$season == "Rabi", ]
-kharif_df <- test_df[test_df$season == "Kharif", ]
+rabi_df <- na.omit(test_df[test_df$season == "Rabi", ])
+kharif_df <- na.omit(test_df[test_df$season == "Kharif", ])
 
 
 correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"),
@@ -136,17 +132,13 @@ corrplot(cor(num_df, use = "complete.obs"), method = "ellipse")
 #original formula: 0.7752,  0.7796 (had a lot more variables)
 #log v4 and v1 : 0.7751, 0.7797 (had a lot more variables)
 
-measles_form <- Measles ~ v4 + v5 + v20 + v23 + v26 + v30 + v34 +
-                          v37 + v38 + index + gdp + beds + tap
+measles_form <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + 
+                          index + gdp + beds + tap
 
-# measles_form <- Measles ~ v4 + v5 + v20 + v23 + v26 + v30 + v34 +
-#  v37 + v38 + beds + tap
 
-measles_model_rabi <- lm(measles_form, rabi_df,
-                         na.action = na.omit)
+measles_model_rabi <- lm(measles_form, rabi_df, na.action = na.omit)
 
-measles_model_kharif <- lm(measles_form, kharif_df,
-                         na.action = na.omit)
+measles_model_kharif <- lm(measles_form, kharif_df, na.action = na.omit)
 
 summary(measles_model_rabi)
 summary(measles_model_kharif)
@@ -154,7 +146,15 @@ summary(measles_model_kharif)
 #ols regression
 ols_regress(measles_form, test_df)
 
+#alternate formula testing
+#measles_form <- Measles ~ v5 + v6 + v16 + v20 + v21 + 
+#  v23 + v27 + v29 + v35 + v37 + v38 + v39 + 
+#  index + gdp + beds + tap
 
+measles_model <- lm(measles_form, test_df, na.action = na.omit)
+
+ols_regress(measles_form, test_df)
+ols_vif_tol(measles_model)
 # ********************IMPROVING MODEL PARAMETERS********************
 #for (param in names(num_df[, 9:length(names(num_df))])){
 #  hist(num_df[[param]], xlab = param, bins = 20)
@@ -176,6 +176,72 @@ ols_regress(measles_form, test_df)
 #    if(line == "stop") break
 #  }
 #}
+
+# ********************VISUALISING RESIDUALS AND VS INDEX********************
+measles_model_kharif
+measles_model_rabi
+
+kharif_resid <- residuals(measles_model_kharif)
+rabi_resid <- residuals(measles_model_rabi)
+
+
+
+plotter <- function(df, model){
+  dev.off()
+  par(mfrow  = c(2, 2))
+  plot(y = df$Measles, x = df$index, xlab = "Yield Index", 
+       ylab = "Measles pct children", main = "Measles vs Yield Index")
+  
+
+  
+  plot(y = residuals(model), x = df$index, xlab = "Yield Index", 
+       ylab = "OLS Residuals", main = "Yield Index vs Residuals")
+  
+  
+  plot(y = fitted.values(model), x = df$Measles, ylab = "Predicted values",
+       xlab = "Measles pct children", main = "Predicted vs Actual")
+
+  }
+
+plotter(kharif_df, measles_model_kharif)
+plotter(rabi_df, measles_model_rabi)
+
+# ***********histogram of residuals
+dev.off()
+hist(kharif_resid, main = "Residuals of OLS for Kharif")
+hist(rabi_resid, main = "Residuals of OLS for Rabi")
+
+#numerically showing that sum of residuals is 0
+sum(kharif_resid)
+sum(rabi_resid)
+
+# sum of residuals for kharif and rabi are respectively, 0.00000000000006244874
+# and 0.000000000003591221, which can be attributed to floating point operation
+# precision. Therefore, sum of residuals is 0.
+
+kharif_resid <- measles_model_kharif$residuals
+kharif_xi_ui_df <- kharif_df[, 3:ncol(kharif_df)-1] * t(kharif_resid)
+
+kharif_xi_ui <- as.data.frame(flatten(kharif_xi_ui_df))
+
+rabi_xi_ui <- flatten(rabi_df[, 3:ncol(rabi_df)-1] * 
+                        t(measles_model_rabi$residuals))
+
+
+#plotting histograms
+hist(as.numeric(kharif_xi_ui), xlab = "u_lt * x_it for Kharif", 
+     main = "Histogram of u*x for Kharif", bins = 20
+     )
+
+hist(as.numeric(rabi_xi_ui), xlab = "u_lt * x_it for Rabi", 
+     main = "Histogram of u*x for Rabi", bins = 20
+)
+
+#sum for kharif is -0.0003767827, and for rabi is 0.00001958485,w hich are very
+#close to 0.
+sum(as.numeric(kharif_xi_ui))
+sum(as.numeric(rabi_xi_ui))
+
 
 
 
@@ -247,18 +313,20 @@ Rabibeta_1 <- summary(rabi_lm)$coefficients[2,1]
 #Discarding 20% of data and considering the remaining dataset
 reduced_rabi_data <- rabi_mc[.(random(0.8)), .(index:season)]
 
+n_iter <- 500
+
 #Sample size : Number of rows in remaining dataset
 rabi_samplesize <- nrow(reduced_rabi_data)
 
 #500 is the number of iterations
 #Vector to store computed slope coefficients
-rabi_slope <- rep(0,500)
+rabi_slope <- rep(0, n_iter)
 
 #Vector to store computed intercept coefficients
-rabi_intercept <- rep(0,500)
+rabi_intercept <- rep(0, n_iter)
 
 #Iterations = 500
-for (i in 1:500) {
+for (i in 1:n_iter) {
   u_i <- rnorm(rabi_samplesize, mean = 0, sd = 1)
   x_i <- rnorm(rabi_samplesize, mean = 2, sd = 16)
   y_i <- Rabibeta_0 + Rabibeta_1*x_i + u_i
@@ -295,13 +363,13 @@ kharif_samplesize <- nrow(reduced_kharif_data)
 
 #500 is the number of iterations
 #Vector to store computed slope coefficients
-kharif_slope <- rep(0,500)
+kharif_slope <- rep(0, n_iter)
 
 #Vector to store computed intercept coefficients
-kharif_intercept <- rep(0,500)
+kharif_intercept <- rep(0, n_iter)
 
 #Iterations = 500
-for (i in 1:500) {
+for (i in 1:n_iter) {
   u_i <- rnorm(kharif_samplesize, mean = 0, sd = 1)
   x_i <- rnorm(kharif_samplesize, mean = 2, sd = 16)
   y_i <- Kharifbeta_0 + Kharifbeta_1*x_i + u_i
@@ -325,17 +393,53 @@ mean(kharif_slope)
 
 # *****************************Q-3***************************************
 
+# ---- Part A ---- 
+
 # get all the columns used by regression along with other columns
 # req_cols <- c(unlist(colnames(num_df)),"state")
-req_cols <- c(valid_cols,"state")
+req_cols <- c(valid_cols,"state","season")
 dummy_df <- main_df[, req_cols]
 
 south_dists = c("Andhra Pradesh","Telangana", "Karnataka", "Kerala", "Tamil Nadu")
+# north_dists = c("Himachal Pradesh", "Punjab", "Uttarakhand", "Uttar Pradesh", "Haryana")
 
 Dsouth <- ifelse(dummy_df$state %in% south_dists, 1, 0)
 dummy_df$Dsouth <- Dsouth
 
+
+# ---- Part B ----
+
+measles_form <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + 
+  index + gdp + beds + tap + Dsouth
+
+rabi_df <- na.omit(dummy_df[dummy_df$season == "Rabi", ])
+kharif_df <- na.omit(dummy_df[dummy_df$season == "Kharif", ])
+
+
+measles_model_rabi <- lm(measles_form, rabi_df, na.action = na.omit)
+
+measles_model_kharif <- lm(measles_form, kharif_df, na.action = na.omit)
+
+measles_model_total <- lm(measles_form, dummy_df, na.action = na.omit)
+
+
+summary(measles_model_rabi)
+summary(measles_model_kharif)
+summary(measles_model_total)
+
+# Inference : 
+
 # H0 (null hypothesis) Beta(Dsouth) = 0
 # Ha (alt hypothesis) Beta(Dsouth) != 0
+
+# Testing for Kharif, Rabi and the total model as well
+# The confidence intervals on all these cases are:
+# rabi: 0.000000000022822
+# Kharif: 0.000000000344165
+# total: < 0.0000000000000002
+# which are quite low, and hence D south is statistically significant for our model
+# as P values < 0.05 implies null hypothesis is rejected
+# This further implies a structural break in mean outcome level across southern and 
+# non southern groups
 
 # ***********************************************************************
