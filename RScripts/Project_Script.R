@@ -220,11 +220,11 @@ sum(rabi_resid)
 # precision. Therefore, sum of residuals is 0.
 
 kharif_resid <- measles_model_kharif$residuals
-kharif_xi_ui_df <- kharif_df[, 1:ncol(kharif_df)-1] * t(kharif_resid)
+kharif_xi_ui_df <- kharif_df[, 3:ncol(kharif_df)-1] * t(kharif_resid)
 
 kharif_xi_ui <- as.data.frame(flatten(kharif_xi_ui_df))
 
-rabi_xi_ui <- flatten(rabi_df[, 1:ncol(rabi_df)-1] * 
+rabi_xi_ui <- flatten(rabi_df[, 3:ncol(rabi_df)-1] * 
                         t(measles_model_rabi$residuals))
 
 
@@ -236,6 +236,13 @@ hist(as.numeric(kharif_xi_ui), xlab = "u_lt * x_it for Kharif",
 hist(as.numeric(rabi_xi_ui), xlab = "u_lt * x_it for Rabi", 
      main = "Histogram of u*x for Rabi", bins = 20
 )
+
+#sum for kharif is -0.0003767827, and for rabi is 0.00001958485,w hich are very
+#close to 0.
+sum(as.numeric(kharif_xi_ui))
+sum(as.numeric(rabi_xi_ui))
+
+
 
 
 
