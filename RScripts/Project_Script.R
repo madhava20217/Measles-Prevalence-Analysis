@@ -308,4 +308,17 @@ mean(kharif_intercept)
 mean(kharif_slope)
 
 
+# *****************************Q-3***************************************
+
+# get all the columns used by regression along with other columns
+# req_cols <- c(unlist(colnames(num_df)),"state")
+req_cols <- c(valid_cols,"state")
+dummy_df <- main_df[, req_cols]
+
+south_dists = c("Andhra Pradesh","Telangana", "Karnataka", "Kerala", "Tamil Nadu")
+
+Dsouth <- ifelse(dummy_df$state %in% south_dists, 1, 0)
+dummy_df$Dsouth <- Dsouth
+
+
 # ***********************************************************************
