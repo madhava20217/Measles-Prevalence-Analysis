@@ -16,7 +16,8 @@
 # install.packages("corrplot")
 # install.packages("lessR")
 # install.packages("data.table")
-#clear console and variables
+# install.packages("olsrr")
+# clear console and variables
 rm(list = ls());
 cat("\014");
 
@@ -35,6 +36,7 @@ library(xtable);
 library(corrplot);
 library(lessR);
 library(data.table);
+library(olsrr);
 
 
 #this is for modelsummary
@@ -48,6 +50,11 @@ names(main_df)[names(main_df) == "v36"] <- "Measles"
 
 #getting numeric data only, from main_df
 num_df <- main_df[, unlist(lapply(main_df, is.numeric))]
+
+# ********************SUMMARY OF VARIABLES********************
+summary(num_df)
+
+
 
 # ********************GETTING MODEL PARAMETERS********************
 
@@ -106,63 +113,71 @@ abs_corrs <- abs(corrs)
 # *** correlation plot ***
 #dropping params (either redundant or other)
 valid_cols <- c("areahectares", "productiontonnes", "yieldtonneshectare", "v1",
-                "v4", "v5", "v6", "v12", "v15", "v16", "v17", "v20", "v21", "v23",
+                "v4", "v5", "v6", "v8", "v15", "v16", "v17", "v20", "v21", "v23",
+                "v26",
                 "v27", "v28", "v29", "v30", "v34", "v35", "v37", "v38", "v39",
                 "index", "gdp", "beds", "tap", "Measles", "season"
           )
 
 test_df <- main_df[valid_cols]
 
+rabi_df <- test_df[test_df$season == "Rabi", ]
+kharif_df <- test_df[test_df$season == "Kharif", ]
+
+
 correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"),
                              method = "shade")
-corrplot(cor(num_df, use = "complete.obs"), method = "shade")
+corrplot(cor(num_df, use = "complete.obs"), method = "ellipse")
 
 # save_plot("correlation_plot.png", correlation_plot)
 
 # ********************MODELING PARAMETERS********************
 
-#original formula: 0.7752,  0.7796
-#log v4 and v1 : 0.7751, 0.7797
+#original formula: 0.7752,  0.7796 (had a lot more variables)
+#log v4 and v1 : 0.7751, 0.7797 (had a lot more variables)
 
-measles_form <- Measles ~ v1 + v4 + v5 + v6 + v12 + v15 + v16 +
-                          v17 + v20 + v21 +  v23 + v28 + v30 + v34 + v35 + v37 +
-                          v38 + v39 + index + gdp + beds + tap
+measles_form <- Measles ~ v4 + v5 + v20 + v23 + v26 + v30 + v34 +
+                          v37 + v38 + index + gdp + beds + tap
 
-measles_model_rabi <- lm(measles_form, test_df[test_df$season == "Rabi", ],
+# measles_form <- Measles ~ v4 + v5 + v20 + v23 + v26 + v30 + v34 +
+#  v37 + v38 + beds + tap
+
+measles_model_rabi <- lm(measles_form, rabi_df,
                          na.action = na.omit)
 
-measles_model_kharif <- lm(measles_form, test_df[test_df$season == "Kharif", ],
+measles_model_kharif <- lm(measles_form, kharif_df,
                          na.action = na.omit)
 
 summary(measles_model_rabi)
 summary(measles_model_kharif)
 
+#ols regression
+ols_regress(measles_form, test_df)
 
-# ***** Alternate formula *****
-#alt <- Measles ~ v13 + v29 + v34 + v27 + beds + index + gdp + tap
-#summary(lm(alt, main_df, na.action = na.omit))
 
 # ********************IMPROVING MODEL PARAMETERS********************
-for (param in names(num_df[, 9:length(names(num_df))])){
-  hist(num_df[[param]], xlab = param, bins = 20)
-  cat("Press [enter] to continue")
-  line <- readline()
-  dev.off()
-  if(line == "stop") break
-}
+#for (param in names(num_df[, 9:length(names(num_df))])){
+#  hist(num_df[[param]], xlab = param, bins = 20)
+#  cat("Press [enter] to continue")
+#  line <- readline()
+#  dev.off()
+#  if(line == "stop") break
+#}
 
 
 
 #scatterplots vs Measles
-for (param in names(num_df[, 9:length(names(num_df))])){
-  if (param != "Measles"){
-    scatter.smooth(num_df$Measles, num_df[[param]], xlab = "Measles", ylab = param)
-    cat("Press [enter] to continue")
-    line <- readline()
-    dev.off()
-    if(line == "stop") break
-  }
-}
+#for (param in names(num_df[, 9:length(names(num_df))])){
+#  if (param != "Measles"){
+#    scatter.smooth(num_df$Measles, num_df[[param]], xlab = "Measles", ylab = param)
+#    cat("Press [enter] to continue")
+#    line <- readline()
+#    dev.off()
+#    if(line == "stop") break
+#  }
+#}
+
+
 
 
 # ********************MONTE CARLO SIMULATION********************
@@ -320,5 +335,7 @@ south_dists = c("Andhra Pradesh","Telangana", "Karnataka", "Kerala", "Tamil Nadu
 Dsouth <- ifelse(dummy_df$state %in% south_dists, 1, 0)
 dummy_df$Dsouth <- Dsouth
 
+# H0 (null hypothesis) Beta(Dsouth) = 0
+# Ha (alt hypothesis) Beta(Dsouth) != 0
 
 # ***********************************************************************
