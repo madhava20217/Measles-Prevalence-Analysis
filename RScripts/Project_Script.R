@@ -391,4 +391,92 @@ mean(kharif_intercept)
 mean(kharif_slope)
 
 
+# *****************************Q-3***************************************
+
+# ---- Part A ---- 
+
+# get all the columns used by regression along with other columns
+# req_cols <- c(unlist(colnames(num_df)),"state")
+req_cols <- c(valid_cols,"state","season")
+dummy_df <- main_df[, req_cols]
+
+south_dists = c("Andhra Pradesh","Telangana", "Karnataka", "Kerala", "Tamil Nadu")
+# north_dists = c("Himachal Pradesh", "Punjab", "Uttarakhand", "Uttar Pradesh", "Haryana")
+
+Dsouth <- ifelse(dummy_df$state %in% south_dists, 1, 0)
+dummy_df$Dsouth <- Dsouth
+
+
+# ---- Part B ----
+
+measles_form <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + 
+  index + gdp + beds + tap + Dsouth
+
+rabi_df <- na.omit(dummy_df[dummy_df$season == "Rabi", ])
+kharif_df <- na.omit(dummy_df[dummy_df$season == "Kharif", ])
+
+
+measles_model_rabi <- lm(measles_form, rabi_df, na.action = na.omit)
+
+measles_model_kharif <- lm(measles_form, kharif_df, na.action = na.omit)
+
+measles_model_total <- lm(measles_form, dummy_df, na.action = na.omit)
+
+
+summary(measles_model_rabi)
+summary(measles_model_kharif)
+summary(measles_model_total)
+
+
+# Inference : 
+
+# H0 (null hypothesis) Beta(Dsouth) = 0
+# Ha (alt hypothesis) Beta(Dsouth) != 0
+
+# Testing for Kharif, Rabi and the total model as well
+# The confidence intervals on all these cases are:
+# rabi: 0.000000000022822
+# Kharif: 0.000000000344165
+# total: < 0.0000000000000002
+# which are quite low, and hence D south is statistically significant for our model
+# as P values < 0.05 implies null hypothesis is rejected
+# This further implies a structural break in mean outcome level across southern and 
+# non southern groups
+
 # ***********************************************************************
+
+
+# ---- Part C ---- 
+measles_form_restricted <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + 
+  index + gdp + beds + tap 
+
+restricted_measles_model_rabi <- lm(measles_form_restricted, rabi_df, na.action = na.omit)
+
+restricted_measles_model_kharif <- lm(measles_form_restricted, kharif_df, na.action = na.omit)
+
+restricted_measles_model_total <- lm(measles_form_restricted, dummy_df, na.action = na.omit)
+
+#Printing the summaries of 2 models
+summary(measles_model_kharif)
+summary(restricted_measles_model_kharif)
+
+#Performing an F-test
+anova(restricted_measles_model_kharif,measles_model_kharif)
+
+#Repeating for rabi 
+#Printing the summaries of 2 models
+summary(measles_model_rabi)
+summary(restricted_measles_model_rabi)
+
+#Performing an F-test
+anova(restricted_measles_model_rabi,measles_model_rabi)
+
+#Inference
+
+#Performing Anova on both kharif and rabi for restricted (without dummy variable
+# for south zone) and unrestricted model(with the dummy variable for south zone)
+# we see that the p-value for kharif is 1.381e-08 which is less than the 
+# significance level of 0.05, we can with a 95% confidence say that the models 
+# are therefore statistically dissimilar and hence we reject null hypothesis and
+# say that there IS a structural break across southern and non-southern state-groups.
+
