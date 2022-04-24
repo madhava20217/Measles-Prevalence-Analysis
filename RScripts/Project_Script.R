@@ -17,6 +17,7 @@
 # install.packages("lessR")
 # install.packages("data.table")
 # install.packages("olsrr")
+# install.packages("jtools")
 # clear console and variables
 rm(list = ls());
 cat("\014");
@@ -37,6 +38,7 @@ library(corrplot);
 library(lessR);
 library(data.table);
 library(olsrr);
+library(jtools);
 
 
 #this is for modelsummary
@@ -62,7 +64,7 @@ summary(num_df)
 cov_mat_num <- cov(num_df, use = "complete.obs")
 print(xtable(as.data.frame(cov_mat_num)), type = "html")
 
-#Our variable of interest is infant deaths due to measles (percentage of total
+#Our variable of interest is infections due to measles (percentage of total
 #deaths)
 # It should not scale with rowID (since it's just row_id), nor with country,
 # could scale with state (as a categorical variable), could scale with
@@ -78,7 +80,7 @@ print(xtable(as.data.frame(cov_mat_num)), type = "html")
 # v12 (pct discharged within 48 hours of delivery), v18(postpartum 48hr) ~ to v8
 # safe deliveries v16, % home deliveries (probably not useful),
 
-# measles deaths in infants should be related to healthcare facilities.
+# measles infections infants should be related to healthcare facilities.
 # therefore, it must have some correlation with v1 to v20 (birth and pregnancy
 # variables), birth weight issues (v20 to v30), sex ratio as well at birth (v31)
 # and also, with fully immunised children (as it relates to healthcare facility
@@ -121,16 +123,16 @@ rabi_df <- na.omit(test_df[test_df$season == "Rabi", ])
 kharif_df <- na.omit(test_df[test_df$season == "Kharif", ])
 
 
-correlation_plot <- corrplot(cor(test_df[, 1: 27], use = "complete.obs"),
-                             method = "shade")
+correlation_plot <- corrplot(cor(test_df[, 1: ncol(test_df) - 1], use = "complete.obs"),
+                             method = "number")
 corrplot(cor(num_df, use = "complete.obs"), method = "ellipse")
 
 # save_plot("correlation_plot.png", correlation_plot)
 
 # ********************MODELING PARAMETERS********************
 
-#original formula: 0.7752,  0.7796 (had a lot more variables)
-#log v4 and v1 : 0.7751, 0.7797 (had a lot more variables)
+#original formula R^2: 0.7752,  0.7796 (had a lot more variables)
+#the below formula had R^2: 0.8074, 0.8093
 
 measles_form <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + 
                           index + gdp + beds + tap
@@ -140,16 +142,14 @@ measles_model_rabi <- lm(measles_form, rabi_df, na.action = na.omit)
 
 measles_model_kharif <- lm(measles_form, kharif_df, na.action = na.omit)
 
+summ(measles_model_rabi)
+
 summary(measles_model_rabi)
 summary(measles_model_kharif)
 
 #ols regression
 ols_regress(measles_form, test_df)
 
-#alternate formula testing
-#measles_form <- Measles ~ v5 + v6 + v16 + v20 + v21 + 
-#  v23 + v27 + v29 + v35 + v37 + v38 + v39 + 
-#  index + gdp + beds + tap
 
 measles_model <- lm(measles_form, test_df, na.action = na.omit)
 
