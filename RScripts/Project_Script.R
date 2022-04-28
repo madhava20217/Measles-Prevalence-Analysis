@@ -500,7 +500,8 @@ ncol(eco_df)
 # eco_df doesn't have rowid and has an additional column called %Vaccine
 # which is the coverage of the National Immunization Programme.
 
-valid_cols <- c(valid_cols, "Vaccine", "year");
+valid_cols <- c("Measles" , "v5", "v20", "v23", "v26", "v30", "v37", "v38", 
+                "index", "gdp", "beds", "tap", "season", "Vaccine", "year")
 
 names(eco_df)[names(eco_df) == 'v36'] <- "Measles"
 names(eco_df)[names(eco_df) == '%Vaccine'] <- "Vaccine"
