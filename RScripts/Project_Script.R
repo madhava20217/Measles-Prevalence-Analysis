@@ -511,7 +511,7 @@ analysis_df <- na.omit(analysis_df);
 show(valid_cols);
 
 measles_form <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + index + gdp +
-                          beds + tap + Vaccine
+                          beds + tap
 
 hist(analysis_df$Vaccine)
 hist(log(analysis_df$Vaccine))
@@ -531,13 +531,17 @@ unique(analysis_df$year)
 year = factor(analysis_df$year)
 dummies = model.matrix(~year)
 
-test_analysis <- data.frame(analysis_df, dummies)
+season = factor(analysis_df$season);
+season_mat = model.matrix(~season);
+
+test_analysis <- data.frame(analysis_df, dummies, season_mat)
 
 
 # Changing the model ------------------------------------------------------
 
 measles_model <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + index + gdp +
-  beds + tap + Vaccine + year2012 + year2013 + year2014 + year2015 + year2016
+  beds + tap + year2012 + year2013 + year2014 + year2015 + year2016 + seasonRabi +
+  seasonSummer + seasonWhole.Year
 
 time_analysis_model <- lm(measles_model, test_analysis);
 
