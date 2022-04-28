@@ -1,3 +1,4 @@
+
 # packages' installation
 # install.packages("readr");
 # install.packages("dplyr");
@@ -18,6 +19,7 @@
 # install.packages("data.table")
 # install.packages("olsrr")
 # install.packages("jtools")
+install.package("dummies")
 # clear console and variables
 rm(list = ls());
 cat("\014");
@@ -42,7 +44,7 @@ library(jtools);
 
 
 #this is for modelsummary
-webshot::install_phantomjs()
+#webshot::install_phantomjs()
 
 #reading the dataframe values into "main_df"
 main_df <- read_csv("../Data/main_final.csv");
@@ -155,6 +157,9 @@ measles_model <- lm(measles_form, test_df, na.action = na.omit)
 
 ols_regress(measles_form, test_df)
 ols_vif_tol(measles_model)
+
+anova(rabi_df);
+
 # ********************IMPROVING MODEL PARAMETERS********************
 #for (param in names(num_df[, 9:length(names(num_df))])){
 #  hist(num_df[[param]], xlab = param, bins = 20)
@@ -480,3 +485,60 @@ anova(restricted_measles_model_rabi,measles_model_rabi)
 # are therefore statistically dissimilar and hence we reject null hypothesis and
 # say that there IS a structural break across southern and non-southern state-groups.
 
+
+
+# ---- Part D ----
+
+
+eco_df <- read_csv("../eco.csv")
+
+head(eco_df[, 70:ncol(eco_df)])
+ncol(main_df)
+ncol(eco_df)
+
+
+# eco_df doesn't have rowid and has an additional column called %Vaccine
+# which is the coverage of the National Immunization Programme.
+
+valid_cols <- c(valid_cols, "Vaccine", "year");
+
+names(eco_df)[names(eco_df) == 'v36'] <- "Measles"
+names(eco_df)[names(eco_df) == '%Vaccine'] <- "Vaccine"
+
+analysis_df <- eco_df[, valid_cols];
+analysis_df <- na.omit(analysis_df);
+
+show(valid_cols);
+
+measles_form <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + index + gdp +
+                          beds + tap + Vaccine
+
+hist(analysis_df$Vaccine)
+hist(log(analysis_df$Vaccine))
+hist(sqrt(analysis_df$Vaccine))
+
+mod <- lm(measles_form, analysis_df)
+
+summary(mod)
+
+
+
+# Creating dummy variables ------------------------------------------------
+
+unique(analysis_df$year)
+
+#we have six years: 2011 2012 2013 2014 2015 2016, considering 2011 as the base:
+year = factor(analysis_df$year)
+dummies = model.matrix(~year)
+
+test_analysis <- data.frame(analysis_df, dummies)
+
+
+# Changing the model ------------------------------------------------------
+
+measles_model <- Measles ~ v5 + v20 + v23 + v26 + v30 + v37 + v38 + index + gdp +
+  beds + tap + Vaccine + year2012 + year2013 + year2014 + year2015 + year2016
+
+time_analysis_model <- lm(measles_model, test_analysis);
+
+summary(time_analysis_model);
