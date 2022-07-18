@@ -18,6 +18,6 @@ The objective is to analyse the impact of agricultural growth on the percentage 
 
 <object data="./presentation.pdf" type="application/pdf" width="700px" height="700px">
     <embed src="http://yoursite.com/the.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="http://yoursite.com/the.pdf">Download PDF</a>.</p>
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://github.com/madhava20217/Econometrics_Project/blob/1688bb7f028038accdbc9b5be5cd93426f6a9b8a/presentation.pdf">Download PDF</a>.</p>
     </embed>
 </object>
