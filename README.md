@@ -12,3 +12,12 @@ A repository for containing files pertaining to the final project for the Econom
 
 ## Goal
 The objective is to analyse the impact of agricultural growth on the percentage of children with Measles in the age group of 0 to 5 years, which is v36 in the given dataframe. The analysis has been conducted separately for the two major crop-sowing seasons: Rabi and Kharif.
+
+
+## Presentation
+
+<object data="./presentation.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="http://yoursite.com/the.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="http://yoursite.com/the.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
